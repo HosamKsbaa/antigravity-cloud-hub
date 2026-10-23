@@ -1194,12 +1194,16 @@ description: test skill
     // Get user id and deactivate user
     const usersRes = await adminClient.get('/api/users');
     const targetUser = usersRes.data?.find?.(u => u.email === regularEmail);
-    if (targetUser) {
-      // Deactivate target user in DB
-      const { db } = await import('../dist/db/index.js');
-      const { users } = await import('../dist/db/schema.js');
-      const { eq } = await import('drizzle-orm');
-      await db.update(users).set({ isActive: false }).where(eq(users.id, targetUser.id));
+      // Deactivate / delete target user via Admin API so it reflects in the target environment (local or remote)
+      const delRes = await adminClient.delete(`/api/users/${targetUser.id}`);
+      if (delRes.status !== 200) {
+        try {
+          const { db } = await import('../dist/db/index.js');
+          const { users } = await import('../dist/db/schema.js');
+          const { eq } = await import('drizzle-orm');
+          await db.update(users).set({ isActive: false }).where(eq(users.id, targetUser.id));
+        } catch {}
+      }
 
       const tar = createSamplePluginPackage('deactivated-plugin', '1.0.0');
       const formData = new FormData();
@@ -1208,17 +1212,21 @@ description: test skill
       const passed = res.status === 401;
       recordTest(
         'section5_auth',
-        '5.12 Deactivated user token attempting publish',
-        'JWT token for inactive user (isActive=false)',
+        '5.12 Deactivated or deleted user token attempting publish',
+        'JWT token for inactive or deleted user',
         'HTTP 401 (User is inactive or deleted)',
         `HTTP ${res.status}`,
         passed,
         res.data?.error || ''
       );
 
-      // Re-activate or delete
-      await db.delete(users).where(eq(users.id, targetUser.id));
-    }
+      // Clean up local DB if still present
+      try {
+        const { db } = await import('../dist/db/index.js');
+        const { users } = await import('../dist/db/schema.js');
+        const { eq } = await import('drizzle-orm');
+        await db.delete(users).where(eq(users.id, targetUser.id));
+      } catch {}
   }
 
   console.log('\n' + '='.repeat(80));
