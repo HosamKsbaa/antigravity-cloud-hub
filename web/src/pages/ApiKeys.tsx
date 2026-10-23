@@ -34,7 +34,7 @@ export const ApiKeys: React.FC<ApiKeysProps> = () => {
     setError(null);
     try {
       const res = await api.getApiKeys();
-      setKeys(res.apiKeys);
+      setKeys(Array.isArray(res?.apiKeys) ? res.apiKeys : []);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch API keys.');
     } finally {
@@ -55,7 +55,7 @@ export const ApiKeys: React.FC<ApiKeysProps> = () => {
 
     try {
       const res = await api.createApiKey(newKeyName.trim());
-      const secret = res.apiKey?.key || res.apiKey?.secretKey;
+      const secret = res.apiKey?.key || res.apiKey?.secretKey || (res as any)?.key;
       setCreatedKeySecret(secret);
       setNewKeyName('');
       await fetchKeys();

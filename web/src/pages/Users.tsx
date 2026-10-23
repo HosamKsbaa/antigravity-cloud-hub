@@ -38,7 +38,7 @@ export const Users: React.FC<UsersProps> = ({ currentUser }) => {
     setError(null);
     try {
       const res = await api.getUsers();
-      setUsersList(res.users);
+      setUsersList(Array.isArray(res?.users) ? res.users : []);
     } catch (err: any) {
       setError(err.message || 'Failed to load user list.');
     } finally {
@@ -50,11 +50,13 @@ export const Users: React.FC<UsersProps> = ({ currentUser }) => {
     fetchUsers();
   }, []);
 
+  const safeUsersList = Array.isArray(usersList) ? usersList : [];
+
   const handleRoleToggle = async (targetUser: UserProfile) => {
     const nextRole: 'admin' | 'user' = targetUser.role === 'admin' ? 'user' : 'admin';
     const actionDesc = nextRole === 'admin' ? 'promote' : 'demote';
 
-    const activeAdmins = usersList.filter((u) => u.role === 'admin' && u.isActive !== false);
+    const activeAdmins = safeUsersList.filter((u) => u.role === 'admin' && u.isActive !== false);
     if (targetUser.role === 'admin' && activeAdmins.length <= 1) {
       if (!confirm(`Warning: ${targetUser.email} appears to be the last active admin! Demoting them may trigger the Last-Admin Lockout Guard. Do you wish to proceed?`)) {
         return;
@@ -81,7 +83,7 @@ export const Users: React.FC<UsersProps> = ({ currentUser }) => {
   };
 
   const handleDeleteUser = async (targetUser: UserProfile) => {
-    const activeAdmins = usersList.filter((u) => u.role === 'admin' && u.isActive !== false);
+    const activeAdmins = safeUsersList.filter((u) => u.role === 'admin' && u.isActive !== false);
     if (targetUser.role === 'admin' && activeAdmins.length <= 1) {
       alert(`Cannot delete ${targetUser.email}: Last remaining active admin account cannot be deleted.`);
       return;
@@ -135,7 +137,7 @@ export const Users: React.FC<UsersProps> = ({ currentUser }) => {
     }
   };
 
-  const activeAdminsCount = usersList.filter((u) => u.role === 'admin' && u.isActive !== false).length;
+  const activeAdminsCount = safeUsersList.filter((u) => u.role === 'admin' && u.isActive !== false).length;
 
   return (
     <div className="space-y-6">
@@ -206,7 +208,7 @@ export const Users: React.FC<UsersProps> = ({ currentUser }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-              {usersList.map((targetUser) => {
+              {safeUsersList.map((targetUser) => {
                 const isCurrent = targetUser.id === currentUser.id;
                 const isAdmin = targetUser.role === 'admin';
                 const isOnlyAdmin = isAdmin && activeAdminsCount <= 1;

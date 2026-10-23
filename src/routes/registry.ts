@@ -62,11 +62,14 @@ registryRouter.get('/registry.json', optionalAuthMiddleware, async (req: Request
         if (authorUser?.name) authorName = authorUser.name;
       }
 
+      const resolvedPluginVer = latestVer?.version || p.latestVersion;
       pluginItems.push({
         id: p.id,
         name: p.name,
         displayName: p.displayName,
-        version: latestVer?.version || p.latestVersion,
+        version: resolvedPluginVer,
+        latestVersion: resolvedPluginVer,
+        downloadsCount: Number(p.downloadsCount || 0),
         description: p.description || '',
         author: authorName,
         tags: Array.isArray(p.tags) ? p.tags : [],
@@ -103,11 +106,14 @@ registryRouter.get('/registry.json', optionalAuthMiddleware, async (req: Request
         if (authorUser?.name) authorName = authorUser.name;
       }
 
+      const resolvedSkillVer = latestVer?.version || s.latestVersion;
       skillItems.push({
         id: s.id,
         name: s.name,
         displayName: s.displayName,
-        version: latestVer?.version || s.latestVersion,
+        version: resolvedSkillVer,
+        latestVersion: resolvedSkillVer,
+        downloadsCount: Number(s.downloadsCount || 0),
         description: s.description || '',
         author: authorName,
         license: s.license || undefined,

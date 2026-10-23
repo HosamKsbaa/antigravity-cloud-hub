@@ -249,7 +249,7 @@ export const RegistryCatalog: React.FC<RegistryCatalogProps> = ({ user }) => {
                   </div>
 
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                    v{item.latestVersion}
+                    v{item.latestVersion || item.version || '1.0.0'}
                   </span>
                 </div>
 

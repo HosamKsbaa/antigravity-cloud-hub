@@ -80,7 +80,8 @@ export interface RegistryItem {
   name: string;
   displayName: string;
   description?: string;
-  latestVersion: string;
+  version?: string;
+  latestVersion?: string;
   downloadsCount?: number;
   tags?: string[];
   skills?: string[];
@@ -89,7 +90,7 @@ export interface RegistryItem {
   hasMcp?: boolean;
   hasScripts?: boolean;
   publisher?: string;
-  author?: {
+  author?: string | {
     email: string;
     name?: string;
   };
@@ -170,7 +171,8 @@ class ApiClient {
   }
 
   async getMe(): Promise<{ user: UserProfile }> {
-    return this.request<{ user: UserProfile }>('/api/auth/me');
+    const res = await this.request<any>('/api/auth/me');
+    return { user: res?.user || res };
   }
 
   async logout(): Promise<void> {
@@ -190,21 +192,25 @@ class ApiClient {
 
   // Users (Admin only)
   async getUsers(): Promise<{ users: UserProfile[] }> {
-    return this.request<{ users: UserProfile[] }>('/api/users');
+    const res = await this.request<any>('/api/users');
+    const users = Array.isArray(res) ? res : Array.isArray(res?.users) ? res.users : [];
+    return { users };
   }
 
   async createUser(payload: { email: string; password: string; role?: 'admin' | 'user'; name?: string }): Promise<{ user: UserProfile }> {
-    return this.request<{ user: UserProfile }>('/api/users', {
+    const res = await this.request<any>('/api/users', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+    return { user: res?.user || res };
   }
 
   async updateUserRole(userId: string, role: 'admin' | 'user'): Promise<{ user: UserProfile }> {
-    return this.request<{ user: UserProfile }>(`/api/users/${userId}/role`, {
+    const res = await this.request<any>(`/api/users/${userId}/role`, {
       method: 'PATCH',
       body: JSON.stringify({ role }),
     });
+    return { user: res?.user || res };
   }
 
   async deleteUser(userId: string): Promise<void> {
@@ -213,14 +219,25 @@ class ApiClient {
 
   // API Keys
   async getApiKeys(): Promise<{ apiKeys: ApiKeyItem[] }> {
-    return this.request<{ apiKeys: ApiKeyItem[] }>('/api/api-keys');
+    const res = await this.request<any>('/api/api-keys');
+    const apiKeys = Array.isArray(res) ? res : Array.isArray(res?.apiKeys) ? res.apiKeys : [];
+    return { apiKeys };
   }
 
   async createApiKey(name: string): Promise<{ apiKey: ApiKeyItem & { key: string; secretKey: string } }> {
-    return this.request<{ apiKey: ApiKeyItem & { key: string; secretKey: string } }>('/api/api-keys', {
+    const res = await this.request<any>('/api/api-keys', {
       method: 'POST',
       body: JSON.stringify({ name }),
     });
+    const raw = res?.apiKey || res || {};
+    const secret = raw?.key || raw?.secretKey || res?.key || '';
+    return {
+      apiKey: {
+        ...raw,
+        key: secret,
+        secretKey: secret,
+      },
+    };
   }
 
   async deleteApiKey(keyId: string): Promise<void> {
