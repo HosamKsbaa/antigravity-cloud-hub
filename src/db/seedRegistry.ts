@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { eq } from 'drizzle-orm';
+import { eq, notInArray } from 'drizzle-orm';
 import { db, initDb } from './index.js';
 import { plugins, pluginVersions, skills, skillVersions, users } from './schema.js';
 import { config } from '../config.js';
@@ -35,6 +35,11 @@ export async function seedRegistry(): Promise<{ pluginsCount: number; skillsCoun
     const pluginEntries = fs
       .readdirSync(PLUGINS_SOURCE_DIR, { withFileTypes: true })
       .filter((ent) => ent.isDirectory() && !ent.name.startsWith('.'));
+
+    const activePluginIds = pluginEntries.map((e) => e.name);
+    if (activePluginIds.length > 0) {
+      await db.delete(plugins).where(notInArray(plugins.id, activePluginIds));
+    }
 
     for (const ent of pluginEntries) {
       const pluginDir = path.join(PLUGINS_SOURCE_DIR, ent.name);
