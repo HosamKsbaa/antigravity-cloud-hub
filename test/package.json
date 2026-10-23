@@ -1,0 +1,14 @@
+{
+  "name": "antigravity-cloud-hub-e2e-tests",
+  "version": "1.0.0",
+  "description": "Comprehensive 4-Tier Opaque-Box E2E Test Suite for Antigravity Cloud Hub",
+  "type": "module",
+  "scripts": {
+    "test": "node runner.mjs",
+    "test:tier1": "node runner.mjs --tier=1",
+    "test:tier2": "node runner.mjs --tier=2",
+    "test:tier3": "node runner.mjs --tier=3",
+    "test:tier4": "node runner.mjs --tier=4",
+    "test:live": "TARGET_URL=https://agy.34.62.68.230.sslip.io node runner.mjs"
+  }
+}

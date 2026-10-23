@@ -1,0 +1,53 @@
+{
+  "name": "antigravity-cloud-hub",
+  "version": "1.0.0",
+  "description": "Antigravity Cloud Hub — Central management, plugin/skill registry, and telemetry plane",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "build:web": "cd web && npm run build",
+    "build": "tsc && npm run build:web",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "db:seed": "tsx src/db/seed.ts",
+    "db:seed-registry": "tsx src/db/seedRegistry.ts",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:e2e": "node test/runner.mjs",
+    "test:m1": "node test/runner.mjs --milestone=1",
+    "test:m2": "node test/runner.mjs --milestone=2",
+    "test:m3": "node test/runner.mjs --milestone=3"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.38.4",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.7.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.13.3",
+    "tar": "^7.4.3",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.13.4",
+    "@types/pg": "^8.11.11",
+    "@types/supertest": "^6.0.2",
+    "@types/tar": "^6.1.13",
+    "@types/uuid": "^10.0.0",
+    "drizzle-kit": "^0.30.4",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}
